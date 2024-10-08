@@ -5,6 +5,27 @@ import torchaudio
 import torchaudio.transforms as T
 from torch.utils.data import DataLoader, TensorDataset
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+
+def display_spectrogram(spectrogram, title="Log-Magnitude Spectrogram"):
+    # Remove batch dimension if present
+    if len(spectrogram.shape) == 3:
+        spectrogram = spectrogram.squeeze(0)
+
+    if spectrogram.shape[0] > 1:
+        spectrogram = spectrogram[0, :, :]
+    
+    # Convert to numpy for visualization
+    spectrogram = spectrogram.detach().cpu().numpy()
+
+    # Plot the spectrogram
+    plt.figure(figsize=(10, 5))
+    plt.imshow(spectrogram, origin='lower', aspect='auto', cmap='viridis')
+    plt.colorbar(format='%+2.0f dB')
+    plt.title(title)
+    plt.ylabel('Frequency Bins')
+    plt.xlabel('Time Frames')
+    plt.show()
 
 
 def compute_log_magnitude_spectrogram(waveform, n_fft=6 * 256, hop_length=256, win_length=1024):
@@ -61,3 +82,15 @@ def create_dataloader(spectrogram_batch, batch_size=32, shuffle=True):
     dataset = TensorDataset(spectrogram_batch)  # Create a TensorDataset
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return dataloader
+
+def revert_spectrogram(log_magnitude_spectrogram):
+    return torch.exp(log_magnitude_spectrogram)
+
+def spectrogram_to_audio(spectrogram, n_fft=1024, hop_length=512, win_length=1024, num_iters=32):
+    griffin_lim = torchaudio.transforms.GriffinLim(n_fft=n_fft, 
+                                                   hop_length=hop_length, 
+                                                   win_length=win_length, 
+                                                   power=1.0, 
+                                                   n_iter=num_iters)
+    
+    return griffin_lim(spectrogram)

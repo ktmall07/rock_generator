@@ -1,25 +1,5 @@
 from audio_transformation.spectrogram_conversion import *
-import matplotlib.pyplot as plt
-
-def display_spectrogram(spectrogram, title="Log-Magnitude Spectrogram"):
-    # Remove batch dimension if present
-    if len(spectrogram.shape) == 3:
-        spectrogram = spectrogram.squeeze(0)
-
-    if spectrogram.shape[0] > 1:
-        spectrogram = spectrogram[0, :, :]
-    
-    # Convert to numpy for visualization
-    spectrogram = spectrogram.detach().cpu().numpy()
-
-    # Plot the spectrogram
-    plt.figure(figsize=(10, 5))
-    plt.imshow(spectrogram, origin='lower', aspect='auto', cmap='viridis')
-    plt.colorbar(format='%+2.0f dB')
-    plt.title(title)
-    plt.ylabel('Frequency Bins')
-    plt.xlabel('Time Frames')
-    plt.show()
+from utils.utils import *
 
 def main():
     audio_files = ['D:/Machine Learning/CS 674 Advanced Deep Learning/Project 1 - Music Generation Using GAN/rock_generator/audio_files/The Strange World of A.J. Kaufmann - The Sign.mp3',
@@ -42,6 +22,16 @@ def main():
         # Optional: Break after displaying the first few spectrograms
         if batch_idx == 2:  # Display 3 spectrograms, for example
             break
+    
+        reverted_spectrogram = revert_spectrogram(spectrogram)
+
+        audio_file = spectrogram_to_audio(reverted_spectrogram)
+
+        save_audio_to_folder(audio_file, sample_rate=22050, filename=('audio_file' + str(batch_idx) + '.wav'), folder='rock_generator/generated_audio')
+
+
+
+
 
 if __name__ == "__main__":
     main()
