@@ -6,7 +6,7 @@ from rock_generator.autoencoder.encoder import Encoder
 from rock_generator.autoencoder.decoder import Decoder
 
 # Training loop example (assuming `spectrograms` is a batch of input log-magnitude spectrograms)
-def train_step(spectrograms):
+def train_ae(spectrograms):
     # Forward pass: Encode and decode the input spectrograms
     latent_space = encoder(spectrograms)
     reconstructed_spectrograms = decoder(latent_space)
@@ -66,5 +66,5 @@ optimizer = optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), 
 # Assuming `train_loader` provides batches of spectrogram data
 for epoch in range(epochs):
     for batch_spectrograms in train_loader:
-        loss = train_step(batch_spectrograms)
+        loss = train_ae(batch_spectrograms)
         print(f'Epoch [{epoch+1}/{epochs}], Loss: {loss:.4f}')
